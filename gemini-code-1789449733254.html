@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>맞춤형 여행지 추천 ✈️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+
+        body {
+            background-color: #f4f7f6;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: #ffffff;
+            width: 100%;
+            max-width: 520px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 6px;
+        }
+
+        header p {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .filter-group {
+            margin-bottom: 16px;
+        }
+
+        .filter-group label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+            color: #444;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+            background-color: #fff;
+        }
+
+        select:focus {
+            border-color: #4facfe;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: transform 0.1s, opacity 0.2s;
+        }
+
+        .btn-submit:hover {
+            opacity: 0.95;
+        }
+
+        .btn-submit:active {
+            transform: scale(0.98);
+        }
+
+        .result-container {
+            margin-top: 20px;
+            display: none;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid #eee;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+        }
+
+        .card img {
+            width: 100%;
+            height: 190px;
+            object-fit: cover;
+        }
+
+        .card-body {
+            padding: 15px;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 4px;
+        }
+
+        .card-location {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+
+        .card-info {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .info-badge {
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            background: #f0f3f6;
+            border-radius: 5px;
+            color: #555;
+        }
+
+        .card-desc {
+            font-size: 0.88rem;
+            color: #555;
+            line-height: 1.45;
+            margin-bottom: 12px;
+        }
+
+        .card-tags {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            background: #eef7ff;
+            color: #007bff;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .no-result {
+            text-align: center;
+            color: #777;
+            padding: 20px 0;
+            font-size: 0.9rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1><i class="fa-solid fa-plane-departure"></i> 맞춤 여행지 찾기</h1>
+        <p>조건을 선택하고 다양하고 새로운 여행지를 추천받으세요!</p>
+    </header>
+
+    <div class="content">
+        <div class="filter-group">
+            <label for="distance"><i class="fa-solid fa-clock"></i> 비행 거리</label>
+            <select id="distance">
+                <option value="any">상관없음</option>
+                <option value="short">단거리 (6시간 이내 / 국내 포함)</option>
+                <option value="long">장거리 (6시간 초과)</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label for="continent"><i class="fa-solid fa-globe"></i> 여행 지역 / 대륙</label>
+            <select id="continent">
+                <option value="any">전체 (상관없음)</option>
+                <option value="korea">국내</option>
+                <option value="asia">아시아</option>
+                <option value="europe">유럽</option>
+                <option value="america">미주 / 아메리카</option>
+                <option value="oceania">오세아니아</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label for="budget"><i class="fa-solid fa-coins"></i> 예상 예산 (1인 기준)</label>
+            <select id="budget">
+                <option value="any">상관없음</option>
+                <option value="low">알뜰형 (~ 50만 원)</option>
+                <option value="mid">실속형 (50만 ~ 150만 원)</option>
+                <option value="high">고급형 (150만 원 이상)</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label for="style"><i class="fa-solid fa-compass"></i> 여행 스타일</label>
+            <select id="style">
+                <option value="any">상관없음</option>
+                <option value="nature">힐링 & 자연 🌿</option>
+                <option value="city">도시 & 쇼핑 🏙️</option>
+                <option value="food">식도락 & 맛집 🍜</option>
+                <option value="activity">액티비티 & 모험 🪂</option>
+            </select>
+        </div>
+
+        <button class="btn-submit" onclick="getRecommendation()">여행지 추천받기</button>
+
+        <div class="result-container" id="result">
+            <div class="card" id="card-content">
+                <img id="res-img" src="" alt="여행지 이미지">
+                <div class="card-body">
+                    <div class="card-title" id="res-title"></div>
+                    <div class="card-location" id="res-location"></div>
+                    <div class="card-info">
+                        <span class="info-badge" id="res-flight"></span>
+                        <span class="info-badge" id="res-budget"></span>
+                    </div>
+                    <p class="card-desc" id="res-desc"></p>
+                    <div class="card-tags" id="res-tags"></div>
+                </div>
+            </div>
+            <div id="no-result-msg" class="no-result" style="display:none;">
+                <i class="fa-solid fa-circle-exclamation" style="font-size: 1.5rem; margin-bottom: 8px;"></i><br>
+                선택하신 조건에 맞는 여행지를 찾지 못했습니다.<br>조건을 조금 넓혀서(상관없음) 선택해 보세요!
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 다양한 여행지 데이터베이스 (20개+)
+    const destinations = [
+        // 국내 (단거리 / low)
+        { id: 1, distance: 'short', continent: 'korea', budget: 'low', style: 'nature', title: '제주도 서귀포', location: '대한민국 제주', flightInfo: '비행 1시간', budgetInfo: '예산 약 30~50만 원', desc: '푸른 바다와 한라산 비경, 숲길을 걸으며 피로를 푸는 자연 힐링지입니다.', img: 'https://images.unsplash.com/photo-1548115184-bc6544d06a58?auto=format&fit=crop&w=600&q=80', tags: ['#자연', '#힐링', '#드라이브'] },
+        { id: 2, distance: 'short', continent: 'korea', budget: 'low', style: 'nature', title: '강원도 평창', location: '대한민국 강원', flightInfo: 'KTX/차량 이동', budgetInfo: '예산 약 20~40만 원', desc: '청정 대관령 양떼목장과 전나무 숲길에서 즐기는 완벽한 자연 힐링 코스입니다.', img: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80', tags: ['#숲길', '#대관령', '#자연'] },
+        { id: 3, distance: 'short', continent: 'korea', budget: 'low', style: 'food', title: '전주 한옥마을', location: '대한민국 전북', flightInfo: 'KTX/버스 이동', budgetInfo: '예산 약 20~35만 원', desc: '비빔밥, 콩나물국밥부터 다양한 길거리 음식까지 미식 탐방을 즐기세요.', img: 'https://images.unsplash.com/photo-1596402184320-417e7178b2cd?auto=format&fit=crop&w=600&q=80', tags: ['#식도락', '#한옥', '#전통'] },
+        { id: 4, distance: 'short', continent: 'korea', budget: 'low', style: 'food', title: '부산 해운대&광안리', location: '대한민국 부산', flightInfo: 'KTX/비행 1시간', budgetInfo: '예산 약 30~50만 원', desc: '돼지국밥, 밀면, 싱싱한 회와 함께 멋진 밤바다 야경을 즐길 수 있습니다.', img: 'https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=600&q=80', tags: ['#해산물', '#바다', '#야경'] },
+        { id: 5, distance: 'short', continent: 'korea', budget: 'low', style: 'activity', title: '강원도 양양', location: '대한민국 강원', flightInfo: '차량/버스 이동', budgetInfo: '예산 약 20~40만 원', desc: '젊음이 넘치는 서피비치에서 서핑과 해양 스포츠를 즐겨보세요.', img: 'https://images.unsplash.com/photo-1502680390469-be75c86b636f?auto=format&fit=crop&w=600&q=80', tags: ['#서핑', '#액티비티', '#동해'] },
+
+        // 아시아 (단거리 / mid~low)
+        { id: 6, distance: 'short', continent: 'asia', budget: 'mid', style: 'city', title: '도쿄', location: '일본', flightInfo: '비행 2시간 30분', budgetInfo: '예산 약 80~130만 원', desc: '화려한 야경과 트렌디한 쇼핑몰, 애니메이션 성지순례까지 가능한 도시입니다.', img: 'https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=600&q=80', tags: ['#도심', '#쇼핑', '#디저트'] },
+        { id: 7, distance: 'short', continent: 'asia', budget: 'low', style: 'city', title: '후쿠오카', location: '일본', flightInfo: '비행 1시간 20분', budgetInfo: '예산 약 40~70만 원', desc: '비행 시간이 짧아 부담 없이 다녀올 수 있는 쇼핑과 돈코츠 라멘의 도시입니다.', img: 'https://images.unsplash.com/photo-1528164344705-475426879e0d?auto=format&fit=crop&w=600&q=80', tags: ['#가까운해외', '#라멘', '#쇼핑'] },
+        { id: 8, distance: 'short', continent: 'asia', budget: 'low', style: 'food', title: '방콕', location: '태국', flightInfo: '비행 5시간 30분', budgetInfo: '예산 약 50~90만 원', desc: '화려한 야시장과 미슐랭 길거리 음식, 럭셔리 루프탑 바를 가성비 있게 즐기세요.', img: 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?auto=format&fit=crop&w=600&q=80', tags: ['#야시장', '#팟타이', '#가성비'] },
+        { id: 9, distance: 'short', continent: 'asia', budget: 'low', style: 'food', title: '타이베이', location: '대만', flightInfo: '비행 2시간 30분', budgetInfo: '예산 약 50~80만 원', desc: '버블티, 딤섬, 우육면 등 길거리 음식이 풍부한 식도락 여행자의 천국입니다.', img: 'https://images.unsplash.com/photo-1470004914212-05527e49370b?auto=format&fit=crop&w=600&q=80', tags: ['#야시장', '#딤섬', '#식도락'] },
+        { id: 10, distance: 'short', continent: 'asia', budget: 'mid', style: 'nature', title: '발리', location: '인도네시아', flightInfo: '비행 7시간', budgetInfo: '예산 약 100~150만 원', desc: '울창한 밀림 우붓과 푸른 해변 라이스가든에서 깊은 힐링을 선사합니다.', img: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=600&q=80', tags: ['#휴양지', '#리조트', '#힐링'] },
+        { id: 11, distance: 'short', continent: 'asia', budget: 'low', style: 'nature', title: '다낭', location: '베트남', flightInfo: '비행 4시간 30분', budgetInfo: '예산 약 50~80만 원', desc: '아름다운 세계적 해변과 고급 리조트를 저렴하게 누릴 수 있는 휴양지입니다.', img: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?auto=format&fit=crop&w=600&q=80', tags: ['#리조트', '#오션뷰', '#가성비'] },
+
+        // 유럽 (장거리 / high)
+        { id: 12, distance: 'long', continent: 'europe', budget: 'high', style: 'nature', title: '인터라켄', location: '스위스', flightInfo: '비행 13시간', budgetInfo: '예산 약 250만 원 이상', desc: '알프스 융프라우의 웅장한 설산과 에메랄드빛 호수가 만드는 압도적 경관입니다.', img: 'https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?auto=format&fit=crop&w=600&q=80', tags: ['#알프스', '#자연', '#풍경'] },
+        { id: 13, distance: 'long', continent: 'europe', budget: 'high', style: 'city', title: '파리', location: '프랑스', flightInfo: '비행 14시간', budgetInfo: '예산 약 220만 원 이상', desc: '에펠탑 야경과 박물관, 골목길 카페에서 느껴지는 예술적 낭만의 도시입니다.', img: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=600&q=80', tags: ['#에펠탑', '#낭만', '#예술'] },
+        { id: 14, distance: 'long', continent: 'europe', budget: 'high', style: 'food', title: '바르셀로나', location: '스페인', flightInfo: '비행 14시간', budgetInfo: '예산 약 200만 원 이상', desc: '가우디 건축물 감상과 타파스, 빠에야, 와인을 즐기는 정열의 미식 도시입니다.', img: 'https://images.unsplash.com/photo-1539037116277-4db20889f2d4?auto=format&fit=crop&w=600&q=80', tags: ['#가우디', '#타파스', '#건축'] },
+
+        // 미주 (장거리 / high)
+        { id: 15, distance: 'long', continent: 'america', budget: 'high', style: 'city', title: '뉴욕', location: '미국', flightInfo: '비행 14시간', budgetInfo: '예산 약 280만 원 이상', desc: '타임스퀘어, 브로드웨이 뮤지컬, 센트럴파크가 주는 에너지 넘치는 세계 최강 도시입니다.', img: 'https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&w=600&q=80', tags: ['#타임스퀘어', '#랜드마크', '#쇼핑'] },
+        { id: 16, distance: 'long', continent: 'america', budget: 'high', style: 'activity', title: '하와이 오아후', location: '미국', flightInfo: '비행 8시간 30분', budgetInfo: '예산 약 250만 원 이상', desc: '와이키키 해변에서 서핑을 즐기고 웅장한 다이아몬드헤드를 등반해 보세요.', img: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80', tags: ['#하와이', '#서핑', '#해변'] },
+
+        // 오세아니아
+        { id: 17, distance: 'long', continent: 'oceania', budget: 'high', style: 'activity', title: '퀸스타운', location: '뉴질랜드', flightInfo: '비행 11시간', budgetInfo: '예산 약 220만 원 이상', desc: '스카이다이빙, 번지점프, 래프팅 등 온갖 익스트림 스포츠를 자연 속에서 즐깁니다.', img: 'https://images.unsplash.com/photo-1507699622108-4be3abd695ad?auto=format&fit=crop&w=600&q=80', tags: ['#액티비티', '#익스트림', '#자연'] },
+        { id: 18, distance: 'short', continent: 'oceania', budget: 'mid', style: 'nature', title: '괌', location: '미국 자치령', flightInfo: '비행 4시간 30분', budgetInfo: '예산 약 100~150만 원', desc: '맑고 투명한 바다에서의 스노클링과 면세 쇼핑을 동시에 누리는 가벼운 휴양지입니다.', img: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=600&q=80', tags: ['#해변', '#스노클링', '#휴양'] },
+        { id: 19, distance: 'long', continent: 'oceania', budget: 'high', style: 'city', title: '시드니', location: '오스트레일리아', flightInfo: '비행 10시간', budgetInfo: '예산 약 180만 원 이상', desc: '오페라하우스와 하버브릿지, 도심 근교의 아름다운 해변을 동시에 만나는 도시입니다.', img: 'https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?auto=format&fit=crop&w=600&q=80', tags: ['#오페라하우스', '#해변', '#도시'] }
+    ];
+
+    // 직전에 추천된 여행지 ID 저장용 변수
+    let lastPickedId = null;
+
+    function getRecommendation() {
+        const distanceInput = document.getElementById('distance').value;
+        const continentInput = document.getElementById('continent').value;
+        const budgetInput = document.getElementById('budget').value;
+        const styleInput = document.getElementById('style').value;
+
+        // 조건 필터링
+        let filtered = destinations.filter(item => {
+            const matchDistance = (distanceInput === 'any' || item.distance === distanceInput);
+            const matchContinent = (continentInput === 'any' || item.continent === continentInput);
+            const matchBudget = (budgetInput === 'any' || item.budget === budgetInput);
+            const matchStyle = (styleInput === 'any' || item.style === styleInput);
+
+            return matchDistance && matchContinent && matchBudget && matchStyle;
+        });
+
+        const resultArea = document.getElementById('result');
+        const cardContent = document.getElementById('card-content');
+        const noResultMsg = document.getElementById('no-result-msg');
+
+        resultArea.style.display = 'block';
+
+        if (filtered.length > 0) {
+            // 결과가 2개 이상이면 방금 보여준 여행지 제외 (연속 중복 방지)
+            if (filtered.length > 1 && lastPickedId !== null) {
+                filtered = filtered.filter(item => item.id !== lastPickedId);
+            }
+
+            // 남은 후보 중 랜덤 선택
+            const randomPick = filtered[Math.floor(Math.random() * filtered.length)];
+            lastPickedId = randomPick.id; // 선택된 ID 기록
+
+            document.getElementById('res-img').src = randomPick.img;
+            document.getElementById('res-title').innerText = randomPick.title;
+            document.getElementById('res-location').innerText = '📍 ' + randomPick.location;
+            document.getElementById('res-flight').innerText = '✈️ ' + randomPick.flightInfo;
+            document.getElementById('res-budget').innerText = '💰 ' + randomPick.budgetInfo;
+            document.getElementById('res-desc').innerText = randomPick.desc;
+
+            const tagsContainer = document.getElementById('res-tags');
+            tagsContainer.innerHTML = '';
+            randomPick.tags.forEach(tag => {
+                const tagSpan = document.createElement('span');
+                tagSpan.className = 'tag';
+                tagSpan.innerText = tag;
+                tagsContainer.appendChild(tagSpan);
+            });
+
+            cardContent.style.display = 'block';
+            noResultMsg.style.display = 'none';
+
+            resultArea.style.animation = 'none';
+            resultArea.offsetHeight;
+            resultArea.style.animation = 'fadeIn 0.4s ease-in-out';
+        } else {
+            cardContent.style.display = 'none';
+            noResultMsg.style.display = 'block';
+        }
+    }
+</script>
+
+</body>
+</html>
